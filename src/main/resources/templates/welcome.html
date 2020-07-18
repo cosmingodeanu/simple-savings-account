@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Welcome - Spring Boot Security Example</title>
+</head>
+<body>
+<div style="text-align: center;">
+    <h2 th:inline="text">Welcome [[${#httpServletRequest.remoteUser}]]</h2>
+
+    <div sec:authorize="hasRole('ADMIN')">
+        <a href="/cpanel">Admin CPanel</a>
+    </div>
+
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Logout"/>
+    </form>
+    <br/>
+    <th:block th:if="${account.id lt 0}">
+
+        <form action="#" th:action="@{/addacount}" th:object="${account}" method="post">
+            <label for="amount">Savings amount</label>
+            <input type="number" th:field="*{amount}" id="amount" placeholder="Amount"/>
+            <input type="submit" value="Add Account">
+        </form>
+
+        <ul th:each="message : ${messages}">
+            <li th:text="${message}"></li>
+        </ul>
+
+    </th:block>
+
+    <th:block th:if="${account.id ge 0}">
+        The savings accound for <span th:text="${account.username}"/> has the amount of <span
+            th:text="${account.amount}"/>.
+    </th:block>
+</div>
+</body>
+</html>
