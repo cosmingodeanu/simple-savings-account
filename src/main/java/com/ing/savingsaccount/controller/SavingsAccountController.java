@@ -1,11 +1,12 @@
 package com.ing.savingsaccount.controller;
 
 import com.ing.savingsaccount.model.SavingsAccount;
-import com.ing.savingsaccount.repo.SavingsAccountRepo;
+import com.ing.savingsaccount.repo.SavingsAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,20 +24,28 @@ import java.util.Date;
 @Validated
 public class SavingsAccountController {
 
-    @Autowired
-    private SavingsAccountRepo savingsAccountRepo;
+    private SavingsAccountRepository savingsAccountRepository;
 
     private final SavingsAccount defaultAccount = new SavingsAccount(-1, 0, "", new Date());
 
+    @Autowired
+    public SavingsAccountController(SavingsAccountRepository savingsAccountRepository) {
+        this.savingsAccountRepository = savingsAccountRepository;
+    }
+
     @PostMapping("/addacount")
-    public String addAccount(@Valid @ModelAttribute("account") SavingsAccount account, Model model, Authentication authentication) {
+    public String addAccount(@Valid @ModelAttribute("account") SavingsAccount account, BindingResult result, Model model, Authentication authentication) {
+        if (result.hasErrors()) {
+            model.addAttribute("account", defaultAccount);
+            return "welcome";
+        }
 
         String username = authentication.getName();
         account.setUsername(username);
-        if (savingsAccountRepo.findByUsername(username).isPresent()) {
+        if (savingsAccountRepository.findByUsername(username).isPresent()) {
             return "redirect:/welcome";
         }
-        SavingsAccount savingsAccount = savingsAccountRepo.save(account);
+        SavingsAccount savingsAccount = savingsAccountRepository.save(account);
         model.addAttribute("account", savingsAccount);
         return "redirect:/welcome";
     }
@@ -44,7 +53,7 @@ public class SavingsAccountController {
     @GetMapping("/welcome")
     public String getAccountByUsername(Model model, Authentication authentication) {
         String username = authentication.getName();
-        SavingsAccount account = savingsAccountRepo.findByUsername(username).orElse(defaultAccount);
+        SavingsAccount account = savingsAccountRepository.findByUsername(username).orElse(defaultAccount);
         model.addAttribute("account", account);
         return "welcome";
     }
@@ -55,6 +64,6 @@ public class SavingsAccountController {
         constraintEx.getConstraintViolations().forEach(violation -> errorMessages.add(violation.getMessage()));
 
         atts.addFlashAttribute("messages", errorMessages);
-        return new RedirectView("/welcome");
+        return new RedirectView("welcome");
     }
 }

@@ -23,7 +23,6 @@ public class WorkingHoursDateValidator implements ConstraintValidator<WorkingHou
 
     @Override
     public boolean isValid(Date date, ConstraintValidatorContext constraintValidatorContext) {
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         String accountDayOfWeek = calendar.getDisplayName(DAY_OF_WEEK, LONG, Locale.ENGLISH);
