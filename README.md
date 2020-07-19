@@ -14,5 +14,5 @@ and `admin`(with password admin).
 After starting the application, open a browser to this address: http://localhost:8080/login, authenticate,
  and try adding an account for the current user.  
 
-The business hours can be changed in the `application.properties` file using the `businesstime` prefix.   
+The business hours can be changed in the `application.properties` file using the `businesstime` prefixed value.   
  
